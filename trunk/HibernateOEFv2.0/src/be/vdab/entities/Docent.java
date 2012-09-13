@@ -5,9 +5,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import be.vdab.enums.Geslacht;
 
 
 @Entity
@@ -20,14 +24,33 @@ public class Docent implements Serializable{
 	private String voornaam;
 	private String familienaam;
 	private BigDecimal wedde;
+	@Enumerated(EnumType.STRING)
+	private Geslacht geslacht;
+	
+	public long getDocentNr() {
+		return docentNr;
+	}
+	public void setDocentNr(long docentNr) {
+		this.docentNr = docentNr;
+	}
+	public Geslacht getGeslacht() {
+		return geslacht;
+	}
+	public void setGeslacht(Geslacht geslacht) {
+		this.geslacht = geslacht;
+	}
+	
 	protected Docent (){
 		
 	}
-	public Docent (String voornaam, String familienaam, BigDecimal wedde){
+	
+	public Docent (String voornaam, String familienaam, BigDecimal wedde, Geslacht geslacht){
 		setVoornaam(voornaam);
 		setFamilienaam(familienaam);
 		setWedde(wedde);
+		setGeslacht(geslacht);
 	}
+	
 	public String getVoornaam() {
 		return voornaam;
 	}
