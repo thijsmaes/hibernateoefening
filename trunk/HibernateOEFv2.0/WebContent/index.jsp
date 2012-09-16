@@ -13,10 +13,14 @@
 		<h1>JPA website</h1>
 	</header>
 	<nav>
-	<ul>
-	<li><a href="<c:url value='/docenten/zoeken.htm'/>">Docent zoeken</a></li>
-	<li><a href="<c:url value='/docenten/toevoegen.htm'/>">Docent toevoegen</a></li>
-	</ul>
+		<ul>
+			<li><a href="<c:url value='/docenten/zoeken.htm'/>">Docent zoeken</a></li>
+			<li><a href="<c:url value='/docenten/toevoegen.htm'/>">Docent toevoegen</a></li>
+			<li><a href="<c:url value='/docenten/vantotwedde.htm'/>">Docenten van tot wedde</a></li>
+			<li><a href="<c:url value='/docenten/voornamen.htm'/>">Docenten voornamen</a></li>
+			<li><a href="<c:url value='/docenten/maxwedde.htm'/>">Maximum wedde docenten</a></li>
+			<li><a href="<c:url value='/docenten/algemeneopslag.htm'/>">Algemene opslag docenten</a></li>
+		</ul>
 	</nav>
 </body>
 </html>

@@ -46,6 +46,6 @@ public class JPAFilter implements Filter {
 	}
 
 	public static EntityManager getEntityManager() {
-		return entityManagerFactory.createEntityManager();
+		return entityManagers.get();
 	}
 }
