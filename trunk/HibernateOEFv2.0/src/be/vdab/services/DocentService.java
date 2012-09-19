@@ -3,15 +3,10 @@ package be.vdab.services;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
-import org.apache.catalina.Session;
-import org.hibernate.Hibernate;
-
 import be.vdab.DAO.DocentDAO;
 import be.vdab.entities.Docent;
 import be.vdab.exceptions.DocentNietGevondenException;
-import be.vdab.filters.JPAFilter;
+import be.vdab.exceptions.EmailAdresAlInGebruikException;
 import be.vdab.util.VoornaamInfo;
 
 public class DocentService {
@@ -29,10 +24,14 @@ public class DocentService {
 	}
 
 	public void create(Docent docent) {
-		docentDAO.beginTransaction();
-		docentDAO.create(docent);
-		docentDAO.commit();
-
+				
+			if (docentDAO.findByEmailAdres(docent.getEmailAdres()) != null) {
+				throw new EmailAdresAlInGebruikException();
+			}
+			docentDAO.beginTransaction();
+			docentDAO.create(docent);
+			docentDAO.commit();
+		
 		/*
 		 * EntityManager entityManager = JPAFilter.getEntityManager(); try {
 		 * entityManager.getTransaction().begin(); docentDAO.create(docent,
@@ -81,7 +80,7 @@ public class DocentService {
 
 	public List<Docent> findByWedde(BigDecimal van, BigDecimal tot,
 			int vanafRij, int aantalRijen) {
-		return docentDAO.findByWedde(van, tot/*, vanafRij, aantalRijen*/);
+		return docentDAO.findByWedde(van, tot/* , vanafRij, aantalRijen */);
 	}
 
 	public List<VoornaamInfo> findVoornamen() {
@@ -101,4 +100,28 @@ public class DocentService {
 		docentDAO.commit();
 		return aantalDocentenAangepast;
 	}
+
+	public void bijnaamToevoegen(long docentNr, String bijnaam) {
+		docentDAO.beginTransaction();
+		Docent docent = docentDAO.read(docentNr);
+		if (docent == null) {
+			throw new DocentNietGevondenException();
+		}
+		docent.addBijnaam(bijnaam);
+		docentDAO.commit();
+	}
+
+	public void bijnamenVerwijderen(long docentNr, String[] bijnamen) {
+		docentDAO.beginTransaction();
+		Docent docent = docentDAO.read(docentNr);
+		if (docent == null) {
+			throw new DocentNietGevondenException();
+		}
+		for (String bijnaam : bijnamen) {
+			docent.removeBijnaam(bijnaam);
+		}
+		docentDAO.commit();
+	}
+
+	
 }

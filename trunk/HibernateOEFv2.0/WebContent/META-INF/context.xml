@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
-<Resource name="jdbc/vdab1" auth="Container" type="javax.sql.DataSource" username="root" password="Scoren92"
+<Resource name="jdbc/vdab1" auth="Container" type="javax.sql.DataSource" username="root" password="vdab"
 driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/vdab1"/>
 </Context>

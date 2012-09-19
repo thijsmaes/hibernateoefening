@@ -11,9 +11,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import be.vdab.entities.Campus;
 import be.vdab.entities.Docent;
 import be.vdab.enums.Geslacht;
+import be.vdab.exceptions.EmailAdresAlInGebruikException;
+import be.vdab.services.CampusService;
 import be.vdab.services.DocentService;
+import be.vdab.valueobjects.EmailAdres;
 
 /**
  * Servlet implementation class DocentToevoegenServlet
@@ -24,10 +28,12 @@ public class DocentToevoegenServlet extends HttpServlet {
 	private static final String VIEW = "/WEB-INF/JSP/docenten/toevoegen.jsp";
 	private static final String REDIRECT_URL = "/docenten/toegevoegd.htm";
 	private final DocentService docentService = new DocentService();
+	private final CampusService campusService = new CampusService();
 
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute("campussen", campusService.findAll());
 		request.getRequestDispatcher(VIEW).forward(request, response);
 	}
 
@@ -36,6 +42,12 @@ public class DocentToevoegenServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		List<String> fouten = new ArrayList<String>();
+		EmailAdres emailAdres = null;
+		try {
+			emailAdres = new EmailAdres(request.getParameter("emailAdres"));
+		} catch (IllegalArgumentException ex) {
+			fouten.add("E-mailadres verkeerd.");
+		}
 		String voornaam = request.getParameter("voornaam");
 		if (voornaam == null || voornaam.isEmpty()) {
 			fouten.add("Voornaam verplicht");
@@ -57,17 +69,31 @@ public class DocentToevoegenServlet extends HttpServlet {
 		if (geslacht == null) {
 			fouten.add("Geslacht verplicht");
 		}
-		if (fouten.isEmpty()) {
-			Docent docent = new Docent(voornaam, familienaam, wedde,
-					Geslacht.valueOf(geslacht));
-			docentService.create(docent);
-			response.sendRedirect(response.encodeRedirectURL(request
-					.getContextPath()
-					+ REDIRECT_URL
-					+ "?docentNr="
-					+ docent.getDocentNr()));
+		Campus campus = null;
+		String campusNr = request.getParameter("campussen");
+		if (campusNr == null) {
+			fouten.add("Kies een campus");
 		} else {
+			campus = campusService.read(Long.parseLong(campusNr));
+			if (campus == null) {
+				fouten.add("Campus bestaat niet");
+			}
+		}
+
+		if (fouten.isEmpty()) {
+			Docent docent = new Docent(voornaam, familienaam, wedde, Geslacht.valueOf(geslacht), emailAdres);
+			docent.setCampus(campus);
+			try{
+			docentService.create(docent);
+			response.sendRedirect(response.encodeRedirectURL(request.getContextPath() 
+					+ REDIRECT_URL + "?docentNr=" + docent.getDocentNr()));
+			}catch(EmailAdresAlInGebruikException ex){
+				fouten.add("E-mail adres is al in gebruik");
+			}
+		} 
+		if (!fouten.isEmpty()) {
 			request.setAttribute("fouten", fouten);
+			request.setAttribute("campussen", campusService.findAll());
 			request.getRequestDispatcher(VIEW).forward(request, response);
 		}
 	}

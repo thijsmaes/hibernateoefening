@@ -23,6 +23,42 @@
 			<img src="${contextPath}/images/${docent.geslacht}.png"
 				alt="${docent.geslacht}" title="${docent.geslacht}" />
 		</div>
+
+		<c:if test="${not empty docent.bijnamen}">
+			<h2>Bijnamen</h2>
+			<c:url value="/docenten/zoeken.htm" var="verwijderURL" />
+			<form method="post" action="${verwijderURL}">
+				<input type="hidden" name="docentNr" value="${docent.docentNr}" />
+
+				<ul>
+					<c:forEach items="${docent.bijnamen}" var="bijnaam">
+						<li><label>${bijnaam} <input type="checkbox"
+								name="bijnaam" value="${bijnaam}" />
+						</label></li>
+					</c:forEach>
+				</ul>
+				<input type="submit" value="Bijnamen verwijderen" name="verwijderen" />
+			</form>
+		</c:if>
+
+		<c:url value="/docenten/zoeken.htm" var="toevoegURL" />
+		<form method="post" action="${toevoegURL}">
+			<label>Bijnaam: <input name="bijnaam"
+				value="${param.bijnaam}" /></label> <input type="hidden" name="docentNr"
+				value="${docent.docentNr}" /> <input type="submit"
+				value="Toevoegen" />
+		</form>
+		
+		<c:if test="${not empty docent.verantwoordelijkheden}">
+			<h2>Verantwoordelijkheden</h2>
+			<ul>
+				<c:forEach items="${docent.verantwoordelijkheden}"
+					var="verantwoordelijkheid">
+					<li>${verantwoordelijkheid.naam}</li>
+				</c:forEach>
+			</ul>
+		</c:if>
+
 		<c:url value="/docenten/verwijderen.htm" var="verwijderenURL">
 			<c:param name="docentNr" value="${docent.docentNr}" />
 		</c:url>
@@ -31,8 +67,8 @@
 			<input type="submit" value="verwijderen" />
 		</form>
 		<form action="<c:url value='/docenten/opslag.htm'/>" method="get">
-			<input type="hidden" name="docentNr" value="${docent.docentNr}" /> 
-			<input type="submit" value="Opslag" />
+			<input type="hidden" name="docentNr" value="${docent.docentNr}" /> <input
+				type="submit" value="Opslag" />
 		</form>
 	</c:if>
 	<c:import url="/WEB-INF/JSP/fouten.jsp" />
