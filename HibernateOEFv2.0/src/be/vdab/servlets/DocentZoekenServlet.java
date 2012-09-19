@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import be.vdab.DAO.DocentDAO;
 import be.vdab.entities.Docent;
+import be.vdab.exceptions.DocentNietGevondenException;
 import be.vdab.services.DocentService;
 
 /**
@@ -21,27 +21,86 @@ import be.vdab.services.DocentService;
 public class DocentZoekenServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String VIEW = "/WEB-INF/JSP/docenten/zoeken.jsp";
+	public static final String REDIRECT_URL = "/docenten/zoeken.htm";
 	private final DocentService docentService = new DocentService();
-	
+
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (! request.getParameterMap().isEmpty()){
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		if (!request.getParameterMap().isEmpty()) {
 			List<String> fouten = new ArrayList<String>();
-			try{
-				long docentNr = Long.parseLong(request.getParameter("docentNr"));
+			try {
+				long docentNr = Long
+						.parseLong(request.getParameter("docentNr"));
 				Docent docent = docentService.read(docentNr);
-				if(docent==null){
+				if (docent == null) {
 					fouten.add("Docent niet gevonden");
-				} else{
+				} else {
 					request.setAttribute("docent", docent);
 				}
-			}catch (NumberFormatException ex){
+			} catch (NumberFormatException ex) {
 				fouten.add("tik een getal");
 			}
-			if (!fouten.isEmpty()){
+			if (!fouten.isEmpty()) {
 				request.setAttribute("fouten", fouten);
 			}
 		}
 		request.getRequestDispatcher(VIEW).forward(request, response);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		if (request.getParameter("verwijderen") == null) {
+			bijnamenToevoegen(request, response);
+		} else {
+			bijnamenVerwijderen(request, response);
+		}
+	}
+
+	private void bijnamenToevoegen(HttpServletRequest request,
+			HttpServletResponse response) throws IOException, ServletException {
+		List<String> fouten = new ArrayList<String>();
+		long docentNr = Long.parseLong(request.getParameter("docentNr"));
+		String bijnaam = request.getParameter("bijnaam");
+		if (bijnaam == null || bijnaam.isEmpty()) {
+			fouten.add("Bijnaam verplicht");
+		} else {
+			try {
+				docentService.bijnaamToevoegen(docentNr, bijnaam);
+			} catch (DocentNietGevondenException ex) {
+				fouten.add("Campus niet gevonden");
+			}
+		}
+		if (fouten.isEmpty()) {
+			response.sendRedirect(response.encodeRedirectURL(request
+					.getContextPath() + REDIRECT_URL + "?docentNr=" + docentNr));
+		} else {
+			request.setAttribute("docent", docentService.read(docentNr));
+			request.setAttribute("fouten", fouten);
+			request.getRequestDispatcher(VIEW).forward(request, response);
+		}
+	}
+
+	private void bijnamenVerwijderen(HttpServletRequest request,
+			HttpServletResponse response) throws IOException, ServletException {
+		List<String> fouten = new ArrayList<String>();
+		long docentNr = Long.parseLong(request.getParameter("docentNr"));
+		String[] bijnamen = request.getParameterValues("bijnaam");
+		if (bijnamen != null) {
+			try {
+				docentService.bijnamenVerwijderen(docentNr, bijnamen);
+			} catch (DocentNietGevondenException ex) {
+				fouten.add("Docent niet gevonden");
+			}
+		}
+		if (fouten.isEmpty()) {
+			response.sendRedirect(response.encodeRedirectURL(request
+					.getContextPath() + REDIRECT_URL + "?docentNr=" + docentNr));
+		} else {
+			request.setAttribute("docent", docentService.read(docentNr));
+			request.setAttribute("fouten", fouten);
+			request.getRequestDispatcher(VIEW).forward(request, response);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" session="false"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<c:set var="contextPath" value="${pageContext.servletContext.contextPath}" />
+<c:set var="contextPath"
+	value="${pageContext.servletContext.contextPath}" />
 <!doctype html>
 <html lang="nl">
 <head>
@@ -10,9 +11,11 @@
 <body>
 	<h1>Docent toevoegen</h1>
 	<form action="<c:url value='/docenten/toevoegen.htm'/>" method="post">
-		<label>Voornaam: <input name="voornaam" value="${param.voornaam}" /></label> 
-		<label>Familienaam: <input name="familienaam" value="${param.familienaam}" /></label> 
-		<label>Wedde: <input name="wedde" value="${param.wedde}" />	</label>
+		<label>Voornaam: <input name="voornaam"
+			value="${param.voornaam}" /></label> <label>Familienaam: <input
+			name="familienaam" value="${param.familienaam}" /></label> <label>Wedde:
+			<input name="wedde" value="${param.wedde}" />
+		</label>
 		<div>
 			<label> <input type="radio" name="geslacht" value="MAN"
 				${param.geslacht=='MAN' ? 'checked' : ''} />Man
@@ -23,6 +26,16 @@
 				${param.geslacht=='VROUW' ? 'checked' : ''} />Vrouw
 			</label>
 		</div>
+		<label>Campus: <select name="campussen"
+			size="${campussen.size()}">
+				<c:forEach items="${campussen}" var="campus">
+					<option value="${campus.campusNr}"
+						${campus.campusNr == param.campussen ? 'selected' : ''}>
+						${campus.naam} (${campus.adres.gemeente})</option>
+				</c:forEach>
+		</select>
+		</label> 
+		<label>E-mail adres: <input name="emailAdres" value="${param.emailAdres}"/></label>
 		<input type="submit" value="Toevoegen" />
 	</form>
 	<c:import url="/WEB-INF/JSP/fouten.jsp" />

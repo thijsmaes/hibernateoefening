@@ -31,6 +31,7 @@ public class DocentOpslagServlet extends HttpServlet {
 		request.getRequestDispatcher(VIEW).forward(request, response);
 	}
 
+	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		BigDecimal percentage = null;

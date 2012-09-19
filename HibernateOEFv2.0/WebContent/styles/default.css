@@ -18,6 +18,17 @@ input[type='checkbox'],input[type='radio'] {
 	font-weight: bold;
 }
 
-h1{
+h1 {
 	color: red;
+}
+
+.zonderbolletjes {
+	list-style: none;
+	padding: 0;
+	margin-bottom: 0.2em;
+}
+
+.zonderbolletjes li {
+	display: inline;
+	margin-right: 0.2em;
 }

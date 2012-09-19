@@ -3,12 +3,14 @@ package be.vdab.DAO;
 import java.math.BigDecimal;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import java.util.*;
 import be.vdab.entities.Docent;
 import be.vdab.util.VoornaamInfo;
+import be.vdab.valueobjects.EmailAdres;
 
 public class DocentDAO extends AbstractDAO {
 
@@ -28,13 +30,18 @@ public class DocentDAO extends AbstractDAO {
 		}
 	}
 
-	public List<Docent> findByWedde(BigDecimal van, BigDecimal tot/*,
-			int vanafRij, int aantalRijen*/) {
-		TypedQuery<Docent> query = getEntityManager().createNamedQuery("findDocentenByWedde", Docent.class);
+	public List<Docent> findByWedde(BigDecimal van, BigDecimal tot/*
+																 * , int
+																 * vanafRij, int
+																 * aantalRijen
+																 */) {
+		TypedQuery<Docent> query = getEntityManager().createNamedQuery(
+				"findDocentenByWedde", Docent.class);
 		query.setParameter("van", van);
 		query.setParameter("tot", tot);
-		/*query.setFirstResult(vanafRij);
-		query.setMaxResults(aantalRijen);*/
+		/*
+		 * query.setFirstResult(vanafRij); query.setMaxResults(aantalRijen);
+		 */
 		return query.getResultList();
 	}
 
@@ -51,11 +58,23 @@ public class DocentDAO extends AbstractDAO {
 				" select max(d.wedde) from Docent d ", BigDecimal.class);
 		return query.getSingleResult();
 	}
-	
+
 	public int algemeneOpslag(BigDecimal factor, BigDecimal totEnMetWedde) {
-		Query query =getEntityManager().createNamedQuery("algemeneOpslagDocenten");
+		Query query = getEntityManager().createNamedQuery(
+				"algemeneOpslagDocenten");
 		query.setParameter("factor", factor);
 		query.setParameter("totEnMetWedde", totEnMetWedde);
 		return query.executeUpdate();
+	}
+
+	public Docent findByEmailAdres(EmailAdres emailAdres) {
+		TypedQuery<Docent> query = getEntityManager().createNamedQuery(
+				"findDocentByEmailAdres", Docent.class);
+		query.setParameter("emailAdres", emailAdres);
+		try {
+			return query.getSingleResult();
+		} catch (NoResultException ex) {
+			return null;
 		}
+	}
 }
