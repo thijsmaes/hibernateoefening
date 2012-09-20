@@ -53,6 +53,12 @@ select m from Manager m order by m.voornaam, m.familienaam
 </query>
 	</named-query>
 
+	<named-query name="findDocentenByFamilienaamEnCampus">
+		<query>
+select d from Docent d where d.familienaam like :begin and d.campus= :campus
+</query>
+	</named-query>
+
 	<!-- <persistence-unit-metadata> <persistence-unit-defaults> <access>FIELD</access> 
 		</persistence-unit-defaults> </persistence-unit-metadata> <package>be.vdab.entities</package> 
 		<entity class="Docent"> <table name="docenten" /> <attributes> <id name="docentNr" 

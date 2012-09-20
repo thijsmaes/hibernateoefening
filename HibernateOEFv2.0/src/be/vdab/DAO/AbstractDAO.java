@@ -1,6 +1,7 @@
 package be.vdab.DAO;
 
 import javax.persistence.EntityManager;
+import javax.persistence.RollbackException;
 
 import be.vdab.filters.JPAFilter;
 
@@ -14,7 +15,7 @@ public abstract class AbstractDAO {
 		getEntityManager().getTransaction().begin();
 	}
 
-	public void commit() {
+	public void commit(){
 		getEntityManager().getTransaction().commit();
 	}
 
