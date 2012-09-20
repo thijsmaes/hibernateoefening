@@ -3,11 +3,14 @@ package be.vdab.DAO;
 import java.math.BigDecimal;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import java.util.*;
+
+import be.vdab.entities.Campus;
 import be.vdab.entities.Docent;
 import be.vdab.util.VoornaamInfo;
 import be.vdab.valueobjects.EmailAdres;
@@ -76,5 +79,19 @@ public class DocentDAO extends AbstractDAO {
 		} catch (NoResultException ex) {
 			return null;
 		}
+	}
+
+	public List<Docent> findByFamilienaamEnCampus(String beginFamilienaam,
+			Campus campus) {
+		TypedQuery<Docent> query = getEntityManager().createNamedQuery(
+				"findDocentenByFamilienaamEnCampus", Docent.class);
+		query.setParameter("begin", beginFamilienaam + '%');
+		query.setParameter("campus", campus);
+		return query.getResultList();
+	}
+
+	public Docent readWithLock(long docentNr) {
+		return getEntityManager().find(Docent.class, docentNr,
+				LockModeType.PESSIMISTIC_WRITE);
 	}
 }

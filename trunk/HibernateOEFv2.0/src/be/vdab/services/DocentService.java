@@ -1,16 +1,27 @@
 package be.vdab.services;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
+import javax.persistence.OptimisticLockException;
+import javax.persistence.RollbackException;
+
+import be.vdab.DAO.CampusDAO;
 import be.vdab.DAO.DocentDAO;
+import be.vdab.entities.Campus;
 import be.vdab.entities.Docent;
 import be.vdab.exceptions.DocentNietGevondenException;
 import be.vdab.exceptions.EmailAdresAlInGebruikException;
+import be.vdab.exceptions.RecordAangepastException;
 import be.vdab.util.VoornaamInfo;
+
+
+
 
 public class DocentService {
 	private final DocentDAO docentDAO = new DocentDAO();
+	private CampusDAO campusDAO = new CampusDAO();
 
 	public Docent read(long docentNr) {
 		return docentDAO.read(docentNr);
@@ -24,14 +35,14 @@ public class DocentService {
 	}
 
 	public void create(Docent docent) {
-				
-			if (docentDAO.findByEmailAdres(docent.getEmailAdres()) != null) {
-				throw new EmailAdresAlInGebruikException();
-			}
-			docentDAO.beginTransaction();
-			docentDAO.create(docent);
-			docentDAO.commit();
-		
+
+		if (docentDAO.findByEmailAdres(docent.getEmailAdres()) != null) {
+			throw new EmailAdresAlInGebruikException();
+		}
+		docentDAO.beginTransaction();
+		docentDAO.create(docent);
+		docentDAO.commit();
+
 		/*
 		 * EntityManager entityManager = JPAFilter.getEntityManager(); try {
 		 * entityManager.getTransaction().begin(); docentDAO.create(docent,
@@ -55,14 +66,20 @@ public class DocentService {
 		 */
 	}
 
-	public void opslag(long docentNr, BigDecimal percentage) {
+	public void opslag(long docentNr, BigDecimal percentage){
 		docentDAO.beginTransaction();
 		Docent docent = docentDAO.read(docentNr);
 		if (docent == null) {
 			throw new DocentNietGevondenException();
 		}
 		docent.opslag(percentage);
-		docentDAO.commit();
+		try{
+			docentDAO.commit();
+		}catch (RollbackException ex){
+			if(ex.getCause() instanceof OptimisticLockException){
+				throw new RecordAangepastException();
+			}
+		}	
 
 		/*
 		 * EntityManager entityManager = JPAFilter.getEntityManager(); try {
@@ -76,7 +93,7 @@ public class DocentService {
 		 * ex) { entityManager.getTransaction().rollback(); throw ex; } finally
 		 * { entityManager.close(); }
 		 */
-	}
+}
 
 	public List<Docent> findByWedde(BigDecimal van, BigDecimal tot,
 			int vanafRij, int aantalRijen) {
@@ -123,5 +140,12 @@ public class DocentService {
 		docentDAO.commit();
 	}
 
-	
+	public List<Docent> find(String beginFamilienaam, long campusNr) {
+		Campus campus = campusDAO.read(campusNr);
+		if (campus == null) {
+			return Collections.emptyList();
+		}
+		return docentDAO.findByFamilienaamEnCampus(beginFamilienaam, campus);
+	}
+
 }
